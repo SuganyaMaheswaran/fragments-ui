@@ -7,7 +7,9 @@
     "start": "parcel",
     "build": "parcel build"
   },
-  "dependencies": {},
+  "dependencies": {
+    "oidc-client-ts": "^3.3.0"
+  },
   "devDependencies": {
     "parcel": "^2.14.0"
   }
