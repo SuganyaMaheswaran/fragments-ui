@@ -2,18 +2,16 @@
 
 import { UserManager } from 'oidc-client-ts';
 
+
 const cognitoAuthConfig = {
   authority: `https://cognito-idp.us-east-1.amazonaws.com/${process.env.AWS_COGNITO_POOL_ID}`,
   client_id: process.env.AWS_COGNITO_CLIENT_ID,
   redirect_uri: process.env.OAUTH_SIGN_IN_REDIRECT_URL,
   response_type: 'code',
   scope: 'phone openid email',
-  // no revoke of "access token" (https://github.com/authts/oidc-client-ts/issues/262)
   revokeTokenTypes: ['refresh_token'],
-  // no silent renew via "prompt=none" (https://github.com/authts/oidc-client-ts/issues/366)
   automaticSilentRenew: false,
 };
-
 // Create a UserManager instance
 const userManager = new UserManager({
   ...cognitoAuthConfig,
@@ -21,9 +19,17 @@ const userManager = new UserManager({
 
 export async function signIn() {
   // Trigger a redirect to the Cognito auth page, so user can authenticate
+    await userManager.removeUser();
   await userManager.signinRedirect();
 }
 
+export async function signOut() {
+  await userManager.removeUser();
+
+  window.location.href =
+    `https://us-east-1wgvy8q2gy.auth.us-east-1.amazoncognito.com/logout?` +
+    `client_id=${process.env.AWS_COGNITO_CLIENT_ID}&logout_uri=http://localhost:1234`;
+}
 // Create a simplified view of the user, with an extra method for creating the auth headers
 function formatUser(user) {
   console.log('User Authenticated', { user });
