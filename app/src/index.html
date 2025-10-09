@@ -1,24 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Fragments UI</title>
-    <link rel="stylesheet" href="https://unpkg.com/bamboo.css" />
-    <script type="module" src="./app.js"></script>
-  </head>
-  <body>
-    <h1>Fragments UI</h1>
-    <section>
-      <nav>
-        <button id="login">Login</button>
-      </nav>
-    </section>
-    <section hidden id="user">
-      <h2>Hello <span class="username"></span>!</h2>
-    </section>
 
-     <nav>
-        <button id="logout">Logout</button>
-      </nav>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <title>Fragments UI</title>
+  <link rel="stylesheet" href="https://unpkg.com/bamboo.css" />
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+
+<body>
+  <section class="header">
+    <div class="header_title">
+      <h1>Fragments UI</h1>
+    </div>
+
+    <div class="header_nav">
+      <button class="header_btn btn_login" id="login">Login</button>
+      <button class="header_btn btn_logout" id="logout">Logout</button>
+    </div>
+  </section>
+
+  <section hidden id="user">
+    <div>
+      <h2>Hello <span class="username"></span>!</h2>
+      <button class="btn_add-Fragment" id="addFragment">Add Fragment</button>
+    </div>
+
+    <!-- Hidden by default -->
+    <form id="fragmentForm" hidden>
+      <h2>Add Fragment</h2>
+
+      <label for="type">Select Content Type:</label>
+      <select id="type" name="type" required>
+        <option value="text/plain">Text (Plain)</option>
+        <option value="application/json">Data (JSON)</option>
+      </select>
+
+      <label for="content">Enter Content:</label>
+      <textarea id="content" name="content" rows="6" placeholder="Enter your fragment data..." required></textarea>
+
+      <button type="submit">Save Fragment</button>
+    </form>
+
+    <!-- Fragment Table -->
+    <section id="fragmentsSection" hidden>
+      <h2>Your Fragments</h2>
+      <table id="fragmentsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Created</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </section>
+</body>
+
 </html>

@@ -18,6 +18,7 @@ const userManager = new UserManager({
 });
 
 export async function signIn() {
+  console.log("signIn is being triggered")
   // Trigger a redirect to the Cognito auth page, so user can authenticate
     await userManager.removeUser();
   await userManager.signinRedirect();
