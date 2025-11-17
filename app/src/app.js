@@ -18,26 +18,6 @@ async function init() {
   loginBtn.disabled = true;
   userSection.querySelector(".username").innerText = user.username;
 
-  // Toggle Add Fragment form and hide/show fragment table
-  addFragmentBtn.onclick = () => {
-    if (fragmentForm.hidden) {
-      // Show form, hide table
-      fragmentForm.hidden = false;
-      fragmentsSection.hidden = true;
-    } else {
-      // Hide form, show table
-      fragmentForm.hidden = true;
-      fragmentsSection.hidden = false;
-    }
-    // Loop through the options
-    select.innerHTML = "";
-    SUPPORTED_CONTENT_TYPES.forEach((type) => {
-      const option = document.createElement("option");
-      option.value = type;
-      option.textContent = type; // You can make this prettier if needed
-      select.appendChild(option);
-    });
-  };
 
   // Handle form submission
   fragmentForm.addEventListener("submit", async (e) => {
@@ -85,40 +65,7 @@ async function init() {
   });
 
   // Load fragments and populate table
-  async function loadFragments() {
-    try {
-      // Use expand=true to get full fragment metadata
-      const data = await getUserFragments(user, true);
-      const fragments = data?.fullMetadata || [];
-
-      fragmentsTableBody.innerHTML = ""; // clear table
-
-      if (fragments.length === 0) {
-        fragmentsSection.hidden = true;
-        return;
-      }
-      fragments.forEach((f) => {
-        console.log(f)
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-        <td>${f.id}</td>
-        <td>${f.type}</td>
-        <td>${f.size}</td>
-        <td>${new Date(f.created).toLocaleString()}</td>
-        <td>${new Date(f.updated).toLocaleString()}</td>
-        <td><button class="viewBtn" disabled data-id="${
-          f.id
-        }">View</button></td>
-      `;
-        fragmentsTableBody.appendChild(tr);
-      });
-
-      fragmentsSection.hidden = false;
-    } catch (err) {
-      console.error("Failed to load fragments:", err);
-      fragmentsSection.hidden = true;
-    }
-  }
+  
 
   // Initial load
   await loadFragments();
