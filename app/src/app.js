@@ -4,15 +4,7 @@ import { getUserFragments } from "./api";
 
 
 async function init() {
-  // UI elementsw
-  const userSection = document.querySelector("#user");
-  const loginBtn = document.querySelector("#login");
-  const logoutBtn = document.querySelector("#logout");
-  const addFragmentBtn = document.querySelector("#addFragment");
-  const fragmentForm = document.querySelector("#fragmentForm");
-  const fragmentsSection = document.querySelector("#fragmentsSection");
-  const fragmentsTableBody = document.querySelector("#fragmentsTable tbody");
-  const select = document.getElementById("type");
+
   // Login / logout handlers
   loginBtn.onclick = () => signIn();
   logoutBtn.onclick = () => signOut();
