@@ -1,21 +1,7 @@
 // src/app.js
 import { signIn, signOut, getUser } from "./auth";
 import { getUserFragments } from "./api";
-const SUPPORTED_CONTENT_TYPES = [
-  `text/plain`,
-  "text/plain; charset=utf-8",
-  `text/markdown`,
-  `text/html`,
-  `application/json`,
-  /*
-   Currently, only text/plain is supported. Others will be added later.
-  `application/yaml`,
-  `image/png`,
-  `image/jpeg`,
-  `image/webp`,
-  `image/gif`,
-  */
-];
+
 
 async function init() {
   // UI elementsw
