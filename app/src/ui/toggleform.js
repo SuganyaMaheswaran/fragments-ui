@@ -2,7 +2,7 @@
 
 import { SUPPORTED_CONTENT_TYPES } from "../constants";
 
-export function toggeForm(ui){
+export function toggleForm(ui){
     const {fragmentForm, fragmentsSection, typeSelect } = ui
     if(fragmentForm.hidden){
         fragmentForm.hidden = false; 
@@ -10,12 +10,12 @@ export function toggeForm(ui){
     }
     else {
         fragmentForm.hidden = true; 
-        fragmentsSection  = false;
+        fragmentsSection.hidden  = false;
         
     }
     // Populate types
-    typeSelect.innerHTML = "";
-    SUPPORTED_CONTENT_TYPES.forEach((type)=>{
+    typeSelect.innerHTML = '<option value="">--Please choose an option--</option>';
+    SUPPORTED_CONTENT_TYPES.forEach((type) => {
         const option = document.createElement("option");
         option.value = type;
         option.textContent = type;
