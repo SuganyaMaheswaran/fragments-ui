@@ -7,7 +7,6 @@ import { toggleForm } from "./ui/toggleform.js";
 
 async function init() {
  const ui = initUI();
-  console.log("Hello world")
   ui.loginBtn.onclick = () => signIn();
   ui.logoutBtn.onclick = () => signOut();
 
@@ -20,7 +19,6 @@ async function init() {
 
   ui.addFragmentBtn.onclick = () => toggleForm(ui);
   setupSubmitHandler(user, ui);
-  console.log("Right before loadFragments")
   await loadFragments(user, ui);
 }
 
