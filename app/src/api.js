@@ -1,7 +1,7 @@
-// src/api.js
-
+// main entry point 
 // fragments microservice API to use, defaults to localhost:8080 if not set in env
-const apiUrl = process.env.API_URL || 'http://localhost:8080';
+const apiUrl = process.env.API_URL || "http://localhost:8080";
+console.log(apiUrl)
 
 /**
  * Given an authenticated user, request all fragments for this user from the
@@ -12,13 +12,13 @@ const apiUrl = process.env.API_URL || 'http://localhost:8080';
  * @param {boolean} expand - Whether to expand fragment metadata
  */
 export async function getUserFragments(user, expand = true) {
-  console.log('Requesting user fragments data...');
+  console.log("Requesting user fragments data...");
 
   try {
     // Add ?expand=true if requested
-    const fragmentsUrl = new URL('/v1/fragments', apiUrl);
+    const fragmentsUrl = new URL("/v1/fragments", apiUrl);
     if (expand) {
-      fragmentsUrl.searchParams.append('expand', '1'); // or 'true', depending on API
+      fragmentsUrl.searchParams.append("expand", "true"); // or 'true', depending on API
     }
 
     const res = await fetch(fragmentsUrl, {
@@ -30,9 +30,9 @@ export async function getUserFragments(user, expand = true) {
     }
 
     const data = await res.json();
-    console.log('Successfully got user fragments data', { data });
+    console.log("Successfully got user fragments data", { data });
     return data;
   } catch (err) {
-    console.error('Unable to call GET /v1/fragments', { err });
+    console.error("Unable to call GET /v1/fragments", { err });
   }
 }

@@ -1,9 +1,10 @@
-*{
+* {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
 
 }
+
 body {
   color-scheme: light dark;
   font-family: system-ui;
@@ -16,29 +17,26 @@ body {
   height: 90vh;
 }
 
-.header{
+.header {
 
-  
+
   display: flex;
   flex-direction: row;
 
 
 }
 
-.header>div{
+.header>div {
   padding: 1em;
   align-items: center;
 }
 
-.header_title{
+.header_title {}
 
-}
-.header_nav{
+.header_nav {
 
   display: flex;
   flex-direction: row;
 }
 
-.header_btn{
-  
-}
+.header_btn {}
