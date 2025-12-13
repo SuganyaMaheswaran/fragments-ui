@@ -36,6 +36,7 @@ async function getUserFragments(user, expand = true) {
 
 async function getFragmentById(user, id, ext = '') {
   console.log("User AuthroizationHeaders: ", user)
+  console.log("ext: ", ext)
   try {
     const res = await fetch(`${apiUrl}/v1/fragments/${id}${ext}`, {
       headers: user.authorizationHeaders(),
@@ -61,6 +62,7 @@ async function getFragmentById(user, id, ext = '') {
       console.log(blobUrl)
       return blobUrl
     }
+  
 
     throw new Error(`Unknown content type: ${contentType}`);
   } catch (err) {
@@ -114,9 +116,27 @@ async function postFragment(user, data, type) {
     throw err;
   }
 }
-async function updateFragment(user, data, type){
+async function updateFragment(user,id, data, type){
+  console.log(user)
+  try{
+ const res = await fetch(`${process.env.API_URL}/v1/fragments:${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": type,
+          Authorization: `Bearer ${user.idToken}`,
+        },
+        body: data,
+      });
 
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+
+    return await res.json();
+  } catch (err) {
+    console.error("Error posting fragment:", err);
+    throw err;
+  }
 }
-
 
 export { getFragmentById, getUserFragments, postFragment, deleteFragment, updateFragment };
