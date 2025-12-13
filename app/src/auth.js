@@ -31,18 +31,18 @@ export async function signOut() {
 // Create a simplified view of the user, with an extra method for creating the auth headers
 function formatUser(user) {
   return {
-    // If you add any other profile scopes, you can include them here
     username: user.profile["cognito:username"],
     email: user.profile.email,
     idToken: user.id_token,
     accessToken: user.access_token,
-    authorizationHeaders: (type = "application/json") => ({
-      "Content-Type": type,
-      Authorization: `Bearer ${user.id_token}`,
-    }),
+    // function to generate headers
+    authorizationHeaders: (type) => {
+      const headers = { Authorization: `Bearer ${user.id_token}` };
+      if (type) headers["Content-Type"] = type; // only set if type provided
+      return headers;
+    },
   };
 }
-
 export async function getUser() {
   // First, check if we're handling a signin redirect callback (e.g., is ?code=... in URL)
   if (window.location.search.includes("code=")) {
