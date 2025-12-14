@@ -8,6 +8,7 @@
     "build": "parcel build"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "dotenv": "^17.2.2",
     "marked": "^17.0.1",
     "oidc-client-ts": "^3.3.0"
