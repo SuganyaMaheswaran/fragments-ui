@@ -9,6 +9,7 @@ export function toggleForm(ui) {
 
   // Populate select
   typeSelect.innerHTML = "";
+
   const placeholderOption = document.createElement("option");
   placeholderOption.value = "";
   placeholderOption.textContent = "--Please choose an option--";
@@ -23,29 +24,37 @@ export function toggleForm(ui) {
     typeSelect.appendChild(option);
   });
 }
+
 // Function to dynamically update upload area
 export function updateUploadArea(type, container) {
-
   container.innerHTML = "";
-
-  if (SUPPORTED_CONTENT_TYPES.includes(type) && (type.startsWith("text/")|| type.startsWith("application"))) {
-
+  if (
+    SUPPORTED_CONTENT_TYPES.includes(type) &&
+    (type.startsWith("text/") || type.startsWith("application/"))
+  ) {
     container.innerHTML = `
       <label for="content">Enter Content:</label>
-      <textarea id="content" name="content" rows="6" placeholder="Enter your fragment data..." required></textarea>
+      <textarea
+        id="content"
+        name="content"
+        rows="6"
+        placeholder="Enter your fragment data..."
+        required
+      ></textarea>
     `;
-  } else  if (SUPPORTED_CONTENT_TYPES.includes(type) && type.startsWith("image/")) {
+  } else if (
+    SUPPORTED_CONTENT_TYPES.includes(type) &&
+    type.startsWith("image/")
+  ) {
     container.innerHTML = `
       <label for="content">Upload Image:</label>
-      <input type="file" id="content" name="content" accept="image/*" required />
+      <input
+        type="file"
+        id="content"
+        name="content"
+        accept="image/*"
+        required
+      />
     `;
   }
-//   } else  if (SUPPORTED_CONTENT_TYPES.includes(type) && type.startsWith("file/")) {
-//     container.innerHTML = `
-//       <label for="content">Upload File:</label>
-//       <input type="file" id="content" name="content" accept="*/*" required />
-//     `;
-//   }
 }
-
-// Event listeners
