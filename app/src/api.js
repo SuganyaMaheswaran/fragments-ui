@@ -30,13 +30,10 @@ async function getUserFragments(user, expand = true) {
     const data = await res.json();
     return data;
   } catch (err) {
-    console.error("Unable to call GET /v1/fragments", { err });
   }
 }
 
 async function getFragmentById(user, id, ext = '') {
-  console.log("User AuthroizationHeaders: ", user)
-  console.log("ext: ", ext)
   try {
     const res = await fetch(`${apiUrl}/v1/fragments/${id}${ext}`, {
       headers: user.authorizationHeaders(),
@@ -59,14 +56,12 @@ async function getFragmentById(user, id, ext = '') {
       const arrayBuffer = await res.arrayBuffer(); // raw bytes
       const blob = new Blob([arrayBuffer], { type: contentType });
       const blobUrl=URL.createObjectURL(blob); // browser-only Blob URL
-      console.log(blobUrl)
       return blobUrl
     }
   
 
     throw new Error(`Unknown content type: ${contentType}`);
   } catch (err) {
-    console.error("Unable to call GET /v1/fragments/:id", { err });
     return null;
   }
 }
@@ -84,16 +79,12 @@ async function deleteFragment(user, id) {
         `Failed to delete fragment: ${res.status} ${res.statusText}`
       );
     }
-
-    console.log(`Fragment ${id} deleted successfully`);
   } catch (err) {
-    console.error("Error deleting fragment:", err);
     throw err; // re-throw so caller can handle
   }
 }
 
 async function postFragment(user, data, type) {
-  console.log("inside postFragment")
 
   try {
     
@@ -112,21 +103,19 @@ async function postFragment(user, data, type) {
 
     return await res.json();
   } catch (err) {
-    console.error("Error posting fragment:", err);
     throw err;
   }
 }
-async function updateFragment(user,id, data, type){
-  console.log(user)
-  try{
- const res = await fetch(`${process.env.API_URL}/v1/fragments:${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": type,
-          Authorization: `Bearer ${user.idToken}`,
-        },
-        body: data,
-      });
+async function updateFragment(user, id, data, type) {
+  try {
+    const res = await fetch(`${process.env.API_URL}/v1/fragments/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": type,
+        Authorization: `Bearer ${user.idToken}`,
+      },
+      body: data,
+    });
 
     if (!res.ok) {
       throw new Error(`${res.status} ${res.statusText}`);
@@ -134,7 +123,6 @@ async function updateFragment(user,id, data, type){
 
     return await res.json();
   } catch (err) {
-    console.error("Error posting fragment:", err);
     throw err;
   }
 }
