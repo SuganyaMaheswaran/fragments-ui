@@ -5,7 +5,7 @@ export async function loadFragments(user, ui){
     try{
         const data = await getUserFragments(user, true);
         const fragments = data?.fullMetadata || [];
-        renderTable(data, ui.fragmentsTableBody, ui.fragmentsSection);
+        renderTable(user, data, ui.fragmentsTableBody, ui.fragmentsSection);
         
     }
     catch(err){
