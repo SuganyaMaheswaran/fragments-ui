@@ -1,6 +1,7 @@
 import { SUPPORTED_CONVERSION } from "../../../../fragments/src/config/constants.js";
-import { getFragmentById, deleteFragment, postFragment } from "../api.js";
+import { getFragmentById, deleteFragment, updateFragment} from "../api.js";
 import { MIME_TO_EXTENSION, SUPPORTED_CONTENT_TYPES } from "../constants.js";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 const { marked } = require("marked");
 const apiUrl = process.env.API_URL || "http://localhost:8080";
 export function renderTable(user, fragments, tbody, section) {
@@ -19,14 +20,13 @@ export function renderTable(user, fragments, tbody, section) {
       <td>${f.size}</td>
       <td>${new Date(f.created).toLocaleString()}</td>
       <td>${new Date(f.updated).toLocaleString()}</td>
-      <td class="viewContainer"><button class="viewBtn">View</button></td>
-      <td class="downloadContainer"><button class="downloadBtn">Download</button></td>
-      <td class="convertContainer">  
-          <button class="convertBtn">Convert</button></td>
-      <td><button class="updateBtn">Update</button><div class="updateContainer-${
+      <td class="viewContainer"><button class="viewBtn"><i class="fas fa-eye"></i> </button></td>
+      <td class="downloadContainer"><button class="downloadBtn"><i class="fas fa-download"></i>  &nbsp;  </button></td>
+      <td class="convertContainer"><button class="convertBtn"><i class="fas fa-exchange-alt"></i> &nbsp; </button></td>
+      <td> <button class="updateBtn"><i class="fas fa-edit"></i> &nbsp; </button><div class="updateContainer-${
         f.id
       }"></div></td>
-      <td class="deleteContainer"><button class="deleteFragmentBtn">X</button></td>
+      <td class="deleteContainer"><button class="deleteBtn"><i class="fas fa-trash-alt"></i> &nbsp; </button></td>
     `;
     tbody.appendChild(tr);
 
@@ -37,165 +37,203 @@ export function renderTable(user, fragments, tbody, section) {
     // --- DOWNLOAD button ---
     tr.querySelector(".downloadBtn").addEventListener("click", async () => {
       const type = f.type || "application/octet-stream";
-      let downloadUrl;
       const extension = getExtensionFromType(type);
 
       try {
         const fragmentData = await getFragmentById(user, f.id);
-
         if (!fragmentData) throw new Error("No fragment data returned");
 
-        // Decide how to handle data
-        if (type.startsWith("image/") || type === "application/octet-stream") {
-          // Convert raw bytes or Blob into a blob URL
-          if (typeof fragmentData === "string") {
-            // Already a blob URL from getFragmentById
-            downloadUrl = fragmentData;
-          } else {
-            const blob = new Blob([fragmentData], { type });
-            downloadUrl = URL.createObjectURL(blob);
-          }
-        } else if (type === "application/json") {
-          const blob = new Blob(
-            [JSON.stringify(fragmentData?.fragment ?? fragmentData, null, 2)],
-            { type: "application/json" }
-          );
+        let blob;
+        let downloadUrl;
+
+        // IMAGE → already a blob URL
+        if (type.startsWith("image/") && typeof fragmentData === "string") {
+          downloadUrl = fragmentData;
+        }
+        // JSON
+        else if (type === "application/json") {
+          blob = new Blob([JSON.stringify(fragmentData, null, 2)], { type });
           downloadUrl = URL.createObjectURL(blob);
-        } else {
-          const blob = new Blob([String(fragmentData)], { type });
+        }
+        // TEXT / MARKDOWN / HTML / YAML
+        else if (type.startsWith("text/") || type.includes("yaml")) {
+          blob = new Blob([fragmentData], { type });
+          downloadUrl = URL.createObjectURL(blob);
+        }
+        // OCTET STREAM / BINARY
+        else {
+          blob = new Blob([fragmentData], { type: "application/octet-stream" });
           downloadUrl = URL.createObjectURL(blob);
         }
 
-        // Trigger download
         const a = document.createElement("a");
         a.href = downloadUrl;
-        a.download = `fragment-${f.id || "file"}.${extension}`;
+        a.download = `fragment-${f.id}.${extension}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
 
-        // Revoke blob URLs we created to avoid memory leaks
-        if (!fragmentData.startsWith("http")) {
+        if (!type.startsWith("image/")) {
           URL.revokeObjectURL(downloadUrl);
         }
       } catch (err) {
-        console.error("Download failed:", err);
         alert("Failed to download fragment.");
       }
     });
-    
+
     // --- Convert button ---
-    tr.querySelector('.convertBtn').addEventListener("click", ()=>{
-        const fType = f.type; // the fragment's original type
-  const convertableTypes = SUPPORTED_CONVERSION[fType] || [];
-      console.log(convertableTypes)
-  // Create popup container
-  const popup = document.createElement("div");
-  popup.style.cssText = `
-   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  border: 1px solid #ccc;
-  padding: 10px;
-  z-index: 1000;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  `;
+    tr.querySelector(".convertBtn").addEventListener("click", () => {
+      const originalType = f.type;
+      const convertibleTypes = (
+        SUPPORTED_CONVERSION[originalType] || []
+      ).filter((t) => t !== originalType);
 
-  // Create dropdown
-  const select = document.createElement("select");
-  select.innerHTML = `<option value="">Select format</option>`;
-  convertableTypes.forEach(type => {
-    select.innerHTML += `<option value="${type}">${type}</option>`;
-  });
+      if (convertibleTypes.length === 0)
+        return alert("No conversion available.");
 
-  // Create download button
-  const downloadBtn = document.createElement("button");
-  downloadBtn.textContent = "Convert & Download";
+      // --- Create overlay ---
+      const overlay = document.createElement("div");
+      overlay.className = "overlayContainer";
 
-  // Close button
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "X";
-  closeBtn.style.marginLeft = "5px";
+      const popup = document.createElement("div");
+      popup.className = "overlayAlert"; // ✅ assign class to popup
 
-  popup.appendChild(select);
-  popup.appendChild(downloadBtn);
-  popup.appendChild(closeBtn);
+      // --- Dropdown ---
+      const select = document.createElement("select");
+      select.innerHTML = `<option value="">Select format</option>`;
+      convertibleTypes.forEach((t) => {
+        select.innerHTML += `<option value="${t}">${t}</option>`;
+      });
 
-  // Add popup to body
-  document.body.appendChild(popup);
+      // --- Buttons container ---
+      const btnContainer = document.createElement("div");
+      btnContainer.style.display = "flex";
+      btnContainer.style.justifyContent = "flex-end";
+      btnContainer.style.gap = "8px";
 
-  // Position near the Convert button
-  const rect = tr.querySelector('.convertBtn').getBoundingClientRect();
-  popup.style.top = `${rect.bottom + window.scrollY + 5}px`;
-  popup.style.left = `${rect.left + window.scrollX}px`;
+      const closeBtn = document.createElement("button");
+      closeBtn.textContent = "X";
+      const convertBtn = document.createElement("button");
+      convertBtn.textContent = "Convert & Download";
 
-  // Close handler
-  closeBtn.addEventListener("click", () => {
-    popup.remove();
-  });
+      btnContainer.append(closeBtn);
 
-  // Convert & download handler
-  downloadBtn.addEventListener("click", async () => {
-    const targetType = select.value;
-    if (!targetType) return alert("Please select a format!");
+      // --- Assemble popup ---
+      popup.append(btnContainer, select, convertBtn );
+      overlay.appendChild(popup);
 
-    const convertedData = await getFragmentById(f.id, targetType, getExtensionFromType(type) ); // API call
-    console.log(convertedData)
-    const a = document.createElement("a");
-    a.href =convertedData
-    a.download = `${f.id}.${MIME_TO_EXTENSION[targetType] || "bin"}`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+      document.body.appendChild(overlay);
 
-    popup.remove();
-  });
-    })
+      // --- Close handler ---
+      closeBtn.addEventListener("click", () => overlay.remove());
+
+      // --- Convert & download handler ---
+      convertBtn.addEventListener("click", async () => {
+        const targetType = select.value;
+        if (!targetType) return alert("Please select a format!");
+
+        try {
+          const fragmentData = await getFragmentById(
+            user,
+            f.id,
+            getExtensionFromType(targetType)
+          );
+          if (!fragmentData) throw new Error("No fragment data returned");
+
+          let blob;
+          let downloadUrl;
+
+          // IMAGE → already a blob URL
+          if (
+            targetType.startsWith("image/") &&
+            typeof fragmentData === "string"
+          ) {
+            downloadUrl = fragmentData;
+          }
+          // JSON
+          else if (targetType === "application/json") {
+            blob = new Blob([JSON.stringify(fragmentData, null, 2)], {
+              type: targetType,
+            });
+            downloadUrl = URL.createObjectURL(blob);
+          }
+          // TEXT / MARKDOWN / HTML / YAML
+          else if (
+            targetType.startsWith("text/") ||
+            targetType.includes("yaml")
+          ) {
+            blob = new Blob([fragmentData], { type: targetType });
+            downloadUrl = URL.createObjectURL(blob);
+          }
+          // BINARY fallback
+          else {
+            blob = new Blob([fragmentData], {
+              type: "application/octet-stream",
+            });
+            downloadUrl = URL.createObjectURL(blob);
+          }
+
+          const a = document.createElement("a");
+          a.href = downloadUrl;
+          a.download = `fragment-${f.id}.${getExtensionFromType(targetType)}`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+          if (!targetType.startsWith("image/"))
+            URL.revokeObjectURL(downloadUrl);
+        } catch (err) {
+          alert("Failed to convert fragment.");
+        }
+
+        overlay.remove();
+      });
+    });
     // --- UPDATE button ---
     tr.querySelector(".updateBtn").addEventListener("click", () => {
-      const container = tr.querySelector(`.updateContainer-${f.id}`);
-      if (!container) return;
+      const modal = document.getElementById("updateModal");
+      const modalBody = document.getElementById("updateModalBody");
+      const closeBtn = document.getElementById("updateModalClose");
 
       let inputUI = "";
       if (f.type.startsWith("text/") || f.type.startsWith("application")) {
         inputUI = `
-          <label for="content-${f.id}">Enter Content:</label>
-          <textarea id="content-${
-            f.id
-          }" rows="6" placeholder="Enter your fragment data...">${
+      <label for="content-${f.id}">Enter Content:</label>
+      <textarea id="content-${
+        f.id
+      }" rows="6" placeholder="Enter your fragment data...">${
           f.data || f.content || ""
         }</textarea>
-        `;
+    `;
       } else if (f.type.startsWith("image/")) {
         inputUI = `
-          <label for="content-${f.id}">Upload Image:</label>
-          <input type="file" id="content-${f.id}" accept="image/*" />
-        `;
+      <label for="content-${f.id}">Upload Image:</label>
+      <input type="file" id="content-${f.id}" accept="image/*" />
+    `;
       }
 
-      container.innerHTML = `
-        <div class="update-box">
-          ${inputUI}
-          <div style="margin-top: 8px; display:flex; gap: 8px;">
-            <button class="submitUpdateBtn">Submit</button>
-            <button class="cancelUpdateBtn">X</button>
-          </div>
-        </div>
-      `;
+      modalBody.innerHTML = `
+    <div class="update-box">
+      ${inputUI}
+      <div style="margin-top: 8px; display:flex; gap: 8px;">
+        <button class="submitUpdateBtn">Submit</button>
+        <button class="cancelUpdateBtn">Cancel</button>
+      </div>
+    </div>
+  `;
 
-      // Cancel
-      container
-        .querySelector(".cancelUpdateBtn")
-        .addEventListener("click", () => {
-          container.innerHTML = "";
-        });
+      modal.style.display = "flex"; // show modal
+
+      // Close modal handlers
+      closeBtn.onclick = () => (modal.style.display = "none");
+      modalBody.querySelector(".cancelUpdateBtn").onclick = () =>
+        (modal.style.display = "none");
 
       // Submit
-      container
+      modalBody
         .querySelector(".submitUpdateBtn")
         .addEventListener("click", async () => {
-          const input = container.querySelector(`#content-${f.id}`);
+          const input = modalBody.querySelector(`#content-${f.id}`);
           let body;
           let headers = { Authorization: `Bearer ${user.idToken}` };
 
@@ -207,21 +245,18 @@ export function renderTable(user, fragments, tbody, section) {
             body = input.value;
           }
 
-          try {
-            const res = await postFragment(user, body, type);
-            if (!res.ok) throw new Error("Update failed");
-
+        try {
+            await updateFragment(user, f.id, body, f.type);
             alert("Update successful!");
-            container.innerHTML = "";
+            modal.style.display = "none";
           } catch (err) {
-            console.error(err);
-            alert("Error updating fragment");
+            alert("Error updating fragment: " + err.message);
           }
         });
     });
 
     // --- DELETE button ---
-    tr.querySelector(".deleteFragmentBtn").addEventListener(
+    tr.querySelector(".deleteBtn").addEventListener(
       "click",
       async () => {
         if (!confirm("Are you sure you want to delete this fragment?")) return;
