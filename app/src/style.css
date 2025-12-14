@@ -2,13 +2,11 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-
 }
 
 body {
   color-scheme: light dark;
   font-family: system-ui;
-
   margin: auto;
   padding: 1em;
   display: flex;
@@ -18,12 +16,8 @@ body {
 }
 
 .header {
-
-
   display: flex;
   flex-direction: row;
-
-
 }
 
 .header>div {
@@ -31,12 +25,116 @@ body {
   align-items: center;
 }
 
-.header_title {}
-
 .header_nav {
-
   display: flex;
   flex-direction: row;
 }
 
-.header_btn {}
+#customAlert {
+  display: none;
+  /* hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#customAlert>div {
+  background: #2E3440;
+  padding: 1.5em;
+  border-radius: 12px;
+  min-width: 280px;
+  max-width: 80%;
+  color: #fff;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  overflow: auto;
+  max-height: 80%;
+}
+
+/* Close button */
+#customAlertClose {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+#customAlert img {
+  max-width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  display: block;
+  margin: 1em auto;
+  border-radius: 12px;
+  /* optional rounded corners */
+}
+
+.overlayContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #2E3440;
+  padding: 16px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.overlayAlert {
+  background:#2E3440;
+  padding: 2em;
+  border-radius: 8px;
+  min-width: 300px;
+  max-width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.viewBtn i, .downloadBtn i, .convertBtn i, .updateBtn i, .viewBtn i , .deleteBtn i{
+font-size: 20px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+}
+th{
+  align-items: center;
+}
