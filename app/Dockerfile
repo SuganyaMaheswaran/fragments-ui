@@ -17,7 +17,7 @@ RUN npm install
 COPY . . 
 
 # Build the front end 
-RUN npm run build --prod
+RUN npm run build
 
 # Serve the application using Nginx
 FROM nginx:alpine
