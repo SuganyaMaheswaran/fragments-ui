@@ -32,7 +32,6 @@ jobs:
       - name: Authorize Docker for Artifact Registry
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
-      # Build and Push Image to Google Artifact Registry
       # Build and push image to Artifact Registry
       - name: Build and push image to Artifact Registry
         env:
@@ -48,7 +47,7 @@ jobs:
           tags: |
             ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}
             ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
-            
+
       # Deploy directly to Google Cloud Run
       - name: Deploy to Cloud Run
         id: deploy
@@ -56,7 +55,7 @@ jobs:
         with:
           service: fragments-service
           region: us-central1
-          image: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/fragments/fragments:${{ github.ref_name }}
+          image: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/fragments/fragments-frontend:${{ github.ref_name }}
           env_vars: |
             LOG_LEVEL=DEBUG
             NODE_ENV=PRODUCTION
