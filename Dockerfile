@@ -25,7 +25,10 @@ FROM nginx:alpine
 # Copy the built files from the previous stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# COPY custom nginx configuration to listen on port 8080 (see step below)
+EXPOSE 8080
 
-EXPOSE 80
+# Configure Nginx to run on port 8080 for Cloud Run
+RUN sed -i 's/listen       80;/listen       8080;/g' /etc/nginx/conf.d/default.conf
 
 CMD ["nginx", "-g", "daemon off;"]
