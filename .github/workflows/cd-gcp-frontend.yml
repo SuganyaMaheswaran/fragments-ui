@@ -1,16 +1,16 @@
-name: cd-gcp-frontend
+name: cd-gcp
 
 on:
-  # Allows manual triggering directly from the Actions tab in GitHub
+  # Allows manual runs from GitHub Actions UI
   workflow_dispatch:
   push:
-    # Triggers whenever a new version tag starting with v... is pushed
+    # Trigger whenever a new tag starting with v... is pushed
     tags:
-      - 'v**'
+      - "v**"
 
 jobs:
-  deploy-frontend:
-    name: Build & Deploy Frontend to Cloud Run
+  gcp:
+    name: GCP Cloud Run
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -19,44 +19,48 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 1. Authenticate to Google Cloud
+      # Authenticate to GCP using a Service Account Key stored in GitHub Secrets
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # 2. Configure Docker to push to Google Artifact Registry
+      # Authenticate Docker against Google Artifact Registry
       - name: Set up Cloud SDK & Docker Login
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Authorize Docker for Artifact Registry
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
-      # 3. Build multi-stage Dockerfile and push image to Artifact Registry
-      - name: Build and push image to Artifact Registry
+      # Build and Push Image to Google Artifact Registry
+      - name: Build and push to Artifact Registry
         env:
           GCP_REGION: us-central1
           GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
           REPOSITORY: fragments
-          IMAGE_NAME: fragments-frontend
+          IMAGE_NAME: fragments
           VERSION_TAG: ${{ github.ref_name }}
         uses: docker/build-push-action@v6
         with:
           push: true
-          # Specify that the build context and Dockerfile are inside the app/ folder:
+          # Point to the app folder where Dockerfile lives
           context: ./app
           file: ./app/Dockerfile
           tags: |
             ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}
             ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
 
-      # 4. Deploy container image to Google Cloud Run
-      - name: Deploy Frontend to Cloud Run
+      # Deploy directly to Google Cloud Run
+      - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: fragments-frontend-service
+          service: fragments-service
           region: us-central1
-          image: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/fragments/fragments-frontend:${{ github.ref_name }}
-          # Expose port 80 to match Nginx's port in your Dockerfile
-          flags: '--port=80 --allow-unauthenticated'
+          image: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/fragments/fragments:${{ github.ref_name }}
+          env_vars: |
+            LOG_LEVEL=DEBUG
+            NODE_ENV=PRODUCTION
+            AWS_COGNITO_POOL_ID=${{ secrets.AWS_COGNITO_POOL_ID }}
+            AWS_COGNITO_CLIENT_ID=${{ secrets.AWS_COGNITO_CLIENT_ID }}
+            API_URL=http://fragments-lb-1586106384.us-east-1.elb.amazonaws.com
