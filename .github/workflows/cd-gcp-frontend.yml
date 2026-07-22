@@ -33,23 +33,22 @@ jobs:
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
       # Build and Push Image to Google Artifact Registry
-      - name: Build and push to Artifact Registry
+      # Build and push image to Artifact Registry
+      - name: Build and push image to Artifact Registry
         env:
           GCP_REGION: us-central1
           GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
           REPOSITORY: fragments
-          IMAGE_NAME: fragments
+          IMAGE_NAME: fragments-frontend
           VERSION_TAG: ${{ github.ref_name }}
         uses: docker/build-push-action@v6
         with:
           push: true
-          # Point to the app folder where Dockerfile lives
-          context: ./app
-          file: ./app/Dockerfile
+          # Default context and Dockerfile now automatically point to the repository root
           tags: |
             ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}
             ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
-
+            
       # Deploy directly to Google Cloud Run
       - name: Deploy to Cloud Run
         id: deploy

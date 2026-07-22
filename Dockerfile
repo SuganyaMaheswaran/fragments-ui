@@ -3,7 +3,7 @@ FROM node:22-alpine AS build
 
 # Set the working directory
 
-WORKDIR /app
+WORKDIR /
 
 # Copy package files 
 
