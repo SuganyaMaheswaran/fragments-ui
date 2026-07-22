@@ -1,6 +1,8 @@
 name: cd-gcp-frontend
 
 on:
+  # Allows manual triggering directly from the Actions tab in GitHub
+  workflow_dispatch:
   push:
     # Triggers whenever a new version tag starting with v... is pushed
     tags:
@@ -47,6 +49,7 @@ jobs:
           tags: |
             ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}
             ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
+
       # 4. Deploy container image to Google Cloud Run
       - name: Deploy Frontend to Cloud Run
         id: deploy
