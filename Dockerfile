@@ -26,14 +26,14 @@ FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
 RUN echo 'server { \
-    listen 8080; \
+    listen ${PORT}; \
     server_name localhost; \
     location / { \
         root /usr/share/nginx/html; \
         index index.html index.htm; \
         try_files $uri $uri/ /index.html; \
     } \
-}' > /etc/nginx/conf.d/default.conf
+}' > /etc/nginx/templates/default.conf.template
 
 # COPY custom nginx configuration to listen on port 8080 (see step below)
 EXPOSE 8080
