@@ -53,7 +53,7 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: fragments-service
+          service: fragments-frontend
           region: us-central1
           image: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/fragments/fragments-frontend:${{ github.ref_name }}
           env_vars: |
