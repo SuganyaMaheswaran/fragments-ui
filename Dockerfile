@@ -23,7 +23,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy the built files from the previous stage
-COPY --from=build /dist /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 
 
 EXPOSE 80
