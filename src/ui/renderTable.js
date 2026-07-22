@@ -1,6 +1,5 @@
-import { SUPPORTED_CONVERSION } from "../constants.js"; 
 import { getFragmentById, deleteFragment, updateFragment} from "../api.js";
-import { MIME_TO_EXTENSION, SUPPORTED_CONTENT_TYPES } from "../constants.js";
+import { MIME_TO_EXTENSION, SUPPORTED_CONTENT_TYPES, SUPPORTED_CONVERSION} from "../constants.js";  
 import '@fortawesome/fontawesome-free/css/all.min.css';
 const { marked } = require("marked");
 const apiUrl = process.env.API_URL || "http://localhost:8080";

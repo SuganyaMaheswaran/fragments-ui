@@ -11,7 +11,7 @@ export const SUPPORTED_CONTENT_TYPES = [
   "image/webp",
 ];
 
-const SUPPORTED_CONVERSION = {
+export const SUPPORTED_CONVERSION = {
   'text/plain': ['text/plain'],
   'text/markdown': ['text/markdown', 'text/html', 'text/plain'],
   'text/html': ['text/html', 'text/plain'],
